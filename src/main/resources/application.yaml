@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: recruitment-be
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/recruitment_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
