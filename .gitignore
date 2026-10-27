@@ -36,3 +36,6 @@ build/
 .env
 application-local.yml
 application-local.yaml
+
+### Internal documentation ###
+docs/

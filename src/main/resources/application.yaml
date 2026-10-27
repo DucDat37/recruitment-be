@@ -2,18 +2,49 @@ spring:
   application:
     name: recruitment-be
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    # Gmail: dùng địa chỉ Gmail và "mật khẩu ứng dụng" (App Password), không dùng mật khẩu đăng nhập
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   datasource:
     url: jdbc:mysql://localhost:3306/recruitment_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
+    username: ${DB_USERNAME:root}
+    # Bắt buộc đặt biến môi trường DB_PASSWORD, không có giá trị mặc định
+    password: ${DB_PASSWORD}
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+
+app:
+  frontend-url: http://localhost:3000
+  mail:
+    # smtp: gửi email thật qua Gmail; log: chỉ ghi nội dung ra console (dùng khi không có mạng)
+    mode: ${APP_MAIL_MODE:smtp}
+  jwt:
+    # Bắt buộc đặt biến môi trường JWT_SECRET (chuỗi base64, tối thiểu 256 bit), không có giá trị mặc định
+    secret: ${JWT_SECRET}
+    access-ttl-minutes: 15
+    refresh-ttl-days: 14
+  auth:
+    max-failed-logins: 5
+    lock-minutes: 15
+    verify-ttl-hours: 24
+    reset-ttl-minutes: 30
 
 server:
   port: 8080
