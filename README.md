@@ -129,6 +129,18 @@ Migration CSDL nằm tại `src/main/resources/db/migration/`.
 - Không commit mật khẩu database, `JWT_SECRET` hoặc `MAIL_PASSWORD` lên Git. `application.yaml` chỉ đọc các giá trị này từ biến môi trường. Nếu thiếu `DB_PASSWORD` hoặc `JWT_SECRET`, app sẽ không khởi động.
 - Khi `APP_MAIL_MODE=log`, log sẽ chứa link có token xác thực. Chỉ dùng chế độ này khi phát triển.
 
+## Quy chuẩn Git & Đa Tác Nhân AI (Agent Rules)
+
+- **Quy trình Git & Bắt buộc tạo PR**: **Tuyệt đối không commit trực tiếp vào nhánh `main`**. Mọi tính năng, sửa lỗi hay cập nhật cấu hình phải tạo nhánh riêng (`feat/<tên>`, `fix/<tên>`, `chore/<tên>`) và tạo **Pull Request (PR)** để được review và kiểm tra trước khi merge vào `main`.
+- **Ngôn ngữ bắt buộc**: **Tiếng Anh 100%** cho mã nguồn Java, tên class/method/variable, chú thích code (Javadoc, inline comments), và Git commit messages theo chuẩn Conventional Commits.
+- **Tài liệu quy chuẩn cho AI Coding Agents**:
+  - [`AGENTS.md`](file:///home/ducdt/Other/recruitment-be/AGENTS.md): Quy chuẩn trung tâm bắt buộc cho mọi AI Agent làm việc trên BE.
+  - [`CODEX.md`](file:///home/ducdt/Other/recruitment-be/CODEX.md): Chỉ dẫn dành riêng cho OpenAI Codex CLI.
+  - [`CLAUDE.md`](file:///home/ducdt/Other/recruitment-be/CLAUDE.md): Chỉ dẫn dành riêng cho Claude Code.
+  - [`.cursorrules`](file:///home/ducdt/Other/recruitment-be/.cursorrules): Cấu hình ngữ cảnh cho Cursor IDE.
+  - [`.github/copilot-instructions.md`](file:///home/ducdt/Other/recruitment-be/.github/copilot-instructions.md): Hướng dẫn cho GitHub Copilot.
+  - [`.gemini/rules/be-agents-rules.md`](file:///home/ducdt/Other/recruitment-be/.gemini/rules/be-agents-rules.md): Hướng dẫn cho Google Antigravity / Gemini.
+
 ## Trạng thái phát triển
 
 - [x] Giai đoạn 1: xác thực và phân quyền (đã cài đặt, đã kiểm thử đăng ký, xác thực email, đăng nhập và `/api/me`)

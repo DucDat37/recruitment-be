@@ -1,0 +1,23 @@
+# Cursor Rules for recruitment-be
+# Please strictly follow the comprehensive guidelines defined in AGENTS.md
+
+You are an expert Java & Spring Boot Developer working on `recruitment-be`.
+Always read and adhere to `AGENTS.md` in the project root.
+
+## Strict Git Workflow & Language Requirement:
+- **No Direct Commits to `main`**: Always work on a dedicated branch (`feat/*`, `fix/*`, `chore/*`) and submit a Pull Request.
+- **English Only**: All code, identifiers, comments, Javadoc, and commit messages MUST be in English.
+- Use Conventional Commits in English (e.g., `feat(auth): add refresh token endpoint`).
+
+## Quick Rules Checklist:
+1. **Tech Stack**: Java 21, Spring Boot 4.1.1, Spring Data JPA, MySQL 8, Flyway, JJWT, Lombok.
+2. **API & Contracts**:
+   - Strictly follow DTO definitions and contracts from `docs/BACKEND_AUDIT_AND_FEEDBACK.md` and `../docs/api_specifications.md`.
+   - Wrap successful API responses in `ApiResponse<T>`.
+3. **Database Migrations**:
+   - Never alter past Flyway migrations (`V1__init.sql`).
+   - Create new migrations (`V2__*.sql`) for any schema evolution.
+4. **Validation & Errors**:
+   - Use Jakarta Validation annotations on inbound DTOs in `dto/request/`.
+   - Catch and format exceptions centrally in `GlobalExceptionHandler`.
+5. **Verification**: Always run `./mvnw clean compile` before completing changes.
