@@ -2,6 +2,10 @@
 
 Backend của hệ thống tuyển dụng tích hợp AI phân tích CV và gợi ý việc làm (đồ án tốt nghiệp).
 
+## Tài liệu dự án
+
+Tài liệu dùng chung cho Backend, Frontend, AI và thiết kế nằm tại [recruitment-docs](https://github.com/yopaz-ducdt/recruitment-docs). Xem [đặc tả API](https://github.com/yopaz-ducdt/recruitment-docs/blob/main/docs/api_specifications.md), [kiến trúc hệ thống](https://github.com/yopaz-ducdt/recruitment-docs/blob/main/docs/system_architecture.md), [database schema](https://github.com/yopaz-ducdt/recruitment-docs/blob/main/docs/database_schema.md) và [roadmap](https://github.com/yopaz-ducdt/recruitment-docs/blob/main/docs/project_roadmap_and_decisions.md).
+
 ## Công nghệ sử dụng
 
 - Java 21, Spring Boot 4.1.1
