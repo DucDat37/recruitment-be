@@ -1,5 +1,6 @@
 package com.example.recruitment.controller;
 
+import com.example.recruitment.common.ApiResponse;
 import com.example.recruitment.dto.auth.EmailRequest;
 import com.example.recruitment.dto.auth.LoginRequest;
 import com.example.recruitment.dto.auth.RefreshTokenRequest;
@@ -7,7 +8,6 @@ import com.example.recruitment.dto.auth.RegisterRequest;
 import com.example.recruitment.dto.auth.ResetPasswordRequest;
 import com.example.recruitment.dto.auth.TokenResponse;
 import com.example.recruitment.dto.auth.VerifyEmailRequest;
-import com.example.recruitment.dto.common.MessageResponse;
 import com.example.recruitment.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,50 +27,50 @@ public class AuthController {
 
 	@PostMapping("/register")
 	@ResponseStatus(HttpStatus.CREATED)
-	public MessageResponse register(@Valid @RequestBody RegisterRequest request) {
+	public ApiResponse<Void> register(@Valid @RequestBody RegisterRequest request) {
 		authService.register(request);
-		return new MessageResponse("Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.");
+		return ApiResponse.success("Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.");
 	}
 
 	@PostMapping("/verify-email")
-	public MessageResponse verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+	public ApiResponse<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
 		authService.verifyEmail(request.token());
-		return new MessageResponse("Xác thực email thành công.");
+		return ApiResponse.success("Xác thực email thành công.");
 	}
 
 	@PostMapping("/resend-verification")
 	@ResponseStatus(HttpStatus.ACCEPTED)
-	public MessageResponse resendVerification(@Valid @RequestBody EmailRequest request) {
+	public ApiResponse<Void> resendVerification(@Valid @RequestBody EmailRequest request) {
 		authService.resendVerification(request.email());
-		return new MessageResponse("Nếu email tồn tại và chưa xác thực, chúng tôi đã gửi lại link xác thực.");
+		return ApiResponse.success("Nếu email tồn tại và chưa xác thực, chúng tôi đã gửi lại link xác thực.");
 	}
 
 	@PostMapping("/login")
-	public TokenResponse login(@Valid @RequestBody LoginRequest request) {
-		return authService.login(request);
+	public ApiResponse<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+		return ApiResponse.success(authService.login(request), "Đăng nhập thành công.");
 	}
 
 	@PostMapping("/refresh")
-	public TokenResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
-		return authService.refresh(request.refreshToken());
+	public ApiResponse<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+		return ApiResponse.success(authService.refresh(request.refreshToken()), "Làm mới token thành công.");
 	}
 
 	@PostMapping("/logout")
-	public MessageResponse logout(@Valid @RequestBody RefreshTokenRequest request) {
+	public ApiResponse<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
 		authService.logout(request.refreshToken());
-		return new MessageResponse("Đăng xuất thành công.");
+		return ApiResponse.success("Đăng xuất thành công.");
 	}
 
 	@PostMapping("/forgot-password")
 	@ResponseStatus(HttpStatus.ACCEPTED)
-	public MessageResponse forgotPassword(@Valid @RequestBody EmailRequest request) {
+	public ApiResponse<Void> forgotPassword(@Valid @RequestBody EmailRequest request) {
 		authService.forgotPassword(request.email());
-		return new MessageResponse("Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu.");
+		return ApiResponse.success("Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu.");
 	}
 
 	@PostMapping("/reset-password")
-	public MessageResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+	public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
 		authService.resetPassword(request.token(), request.newPassword());
-		return new MessageResponse("Đặt lại mật khẩu thành công.");
+		return ApiResponse.success("Đặt lại mật khẩu thành công.");
 	}
 }
