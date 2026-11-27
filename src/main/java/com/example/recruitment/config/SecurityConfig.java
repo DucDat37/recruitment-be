@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,9 +16,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -43,6 +48,7 @@ public class SecurityConfig {
 												   JwtService jwtService,
 												   UserRepository userRepository) throws Exception {
 		http
+				.cors(Customizer.withDefaults())
 				.csrf(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
 				.formLogin(AbstractHttpConfigurer::disable)
@@ -61,6 +67,34 @@ public class SecurityConfig {
 				.addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository),
 						UsernamePasswordAuthenticationFilter.class);
 		return http.build();
+	}
+
+	/**
+	 * CORS rules for browser clients. Picked up by {@code http.cors(...)} above, so preflight
+	 * (OPTIONS) requests are answered before authentication runs.
+	 *
+	 * <p>Tokens travel in the {@code Authorization} header, not in cookies, so credentials are not allowed.</p>
+	 */
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource(AppProperties properties) {
+		List<String> origins = properties.cors() == null || properties.cors().allowedOrigins() == null
+				? List.of()
+				: properties.cors().allowedOrigins().stream()
+				.map(String::trim)
+				.map(origin -> origin.endsWith("/") ? origin.substring(0, origin.length() - 1) : origin)
+				.filter(origin -> !origin.isEmpty())
+				.toList();
+
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(origins);
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+		config.setAllowCredentials(false);
+		config.setMaxAge(3600L);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/api/**", config);
+		return source;
 	}
 
 	@Bean

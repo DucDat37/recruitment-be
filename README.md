@@ -45,6 +45,8 @@ Cấu hình nằm trong `src/main/resources/application.yaml`. Các giá trị n
 | `MAIL_USERNAME` | Địa chỉ Gmail dùng để gửi email | Trống |
 | `MAIL_PASSWORD` | Mật khẩu ứng dụng của Gmail | Trống |
 | `APP_MAIL_MODE` | `smtp` để gửi email thật, `log` để chỉ ghi nội dung ra console | `smtp` |
+| `APP_FRONTEND_URL` | Địa chỉ frontend, dùng để tạo link trong email xác thực và đặt lại mật khẩu | `http://localhost:5173` |
+| `APP_CORS_ALLOWED_ORIGINS` | Các origin được phép gọi API từ trình duyệt, cách nhau bằng dấu phẩy, không có `/` ở cuối | `http://localhost:5173` |
 
 Trên IntelliJ, đặt biến môi trường trong **Run → Edit Configurations → Environment variables**, các biến cách nhau bằng dấu chấm phẩy:
 
@@ -167,4 +169,4 @@ Migration CSDL nằm tại `src/main/resources/db/migration/`.
 - [x] Giai đoạn 1: xác thực và phân quyền (đã cài đặt, đã kiểm thử đăng ký, xác thực email, đăng nhập và `/api/me`)
 - [ ] Giai đoạn 2 đến 11: chưa bắt đầu
 
-Chưa cấu hình CORS, nên frontend chạy ở domain khác sẽ chưa gọi được API.
+CORS chỉ cho phép các origin trong `APP_CORS_ALLOWED_ORIGINS` gọi `/api/**`. Khi deploy, đặt biến này và `APP_FRONTEND_URL` bằng domain thật của frontend.
