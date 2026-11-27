@@ -98,7 +98,25 @@ Server chạy tại `http://localhost:8080`. Swagger UI nằm tại `http://loca
 |---|---|---|
 | PATCH | `/api/admin/users/{userId}/status` | Đổi trạng thái tài khoản (`ACTIVE`, `LOCKED`, `DISABLED`) |
 
+## Định dạng phản hồi thành công
+
+Mọi API thành công đều trả về cùng một cấu trúc `ApiResponse`:
+
+```json
+{
+  "success": true,
+  "message": "Đăng nhập thành công.",
+  "data": { "accessToken": "...", "refreshToken": "..." },
+  "timestamp": "2026-11-27T15:00:00Z"
+}
+```
+
+- `message`: thông báo bằng tiếng Việt, frontend có thể hiển thị trực tiếp.
+- `data`: dữ liệu trả về; bằng `null` với các thao tác không trả dữ liệu (đăng ký, đăng xuất, đổi mật khẩu...).
+
 ## Định dạng lỗi
+
+Lỗi không bọc trong `ApiResponse`.
 
 Mọi lỗi trả về JSON theo cấu trúc sau:
 
@@ -114,13 +132,12 @@ Mọi lỗi trả về JSON theo cấu trúc sau:
 
 ```
 src/main/java/com/example/recruitment/
-├── common/        Tiện ích dùng chung (TokenUtils)
+├── common/        Kiểu dùng chung (ApiResponse) và tiện ích (TokenUtils)
 ├── config/        Cấu hình Security, OpenAPI, AppProperties
 ├── controller/    REST controller
 ├── dto/           Request và response (auth, admin)
 ├── entity/        Entity JPA và enum
 ├── exception/     ApiException và xử lý lỗi toàn cục
-├── mapper/        Mapping giữa entity và DTO
 ├── repository/    Spring Data JPA repository
 ├── security/      JWT service và filter xác thực
 └── service/       Nghiệp vụ, gửi email
@@ -136,14 +153,14 @@ Migration CSDL nằm tại `src/main/resources/db/migration/`.
 ## Quy chuẩn Git & Đa Tác Nhân AI (Agent Rules)
 
 - **Quy trình Git & Bắt buộc tạo PR**: **Tuyệt đối không commit trực tiếp vào nhánh `main`**. Mọi tính năng, sửa lỗi hay cập nhật cấu hình phải tạo nhánh riêng (`feat/<tên>`, `fix/<tên>`, `chore/<tên>`) và tạo **Pull Request (PR)** để được review và kiểm tra trước khi merge vào `main`.
-- **Ngôn ngữ bắt buộc**: **Tiếng Anh 100%** cho mã nguồn Java, tên class/method/variable, chú thích code (Javadoc, inline comments), và Git commit messages theo chuẩn Conventional Commits.
+- **Ngôn ngữ bắt buộc**: **Tiếng Anh 100%** cho mã nguồn Java, tên class/method/variable, chú thích code (Javadoc, inline comments), và Git commit messages theo chuẩn Conventional Commits. Riêng các thông báo hiển thị cho người dùng (`message` trong response, thông báo validation, nội dung email) vẫn viết bằng tiếng Việt.
 - **Tài liệu quy chuẩn cho AI Coding Agents**:
-  - [`AGENTS.md`](file:///home/ducdt/Other/recruitment-be/AGENTS.md): Quy chuẩn trung tâm bắt buộc cho mọi AI Agent làm việc trên BE.
-  - [`CODEX.md`](file:///home/ducdt/Other/recruitment-be/CODEX.md): Chỉ dẫn dành riêng cho OpenAI Codex CLI.
-  - [`CLAUDE.md`](file:///home/ducdt/Other/recruitment-be/CLAUDE.md): Chỉ dẫn dành riêng cho Claude Code.
-  - [`.cursorrules`](file:///home/ducdt/Other/recruitment-be/.cursorrules): Cấu hình ngữ cảnh cho Cursor IDE.
-  - [`.github/copilot-instructions.md`](file:///home/ducdt/Other/recruitment-be/.github/copilot-instructions.md): Hướng dẫn cho GitHub Copilot.
-  - [`.gemini/rules/be-agents-rules.md`](file:///home/ducdt/Other/recruitment-be/.gemini/rules/be-agents-rules.md): Hướng dẫn cho Google Antigravity / Gemini.
+  - [`AGENTS.md`](./AGENTS.md): Quy chuẩn trung tâm bắt buộc cho mọi AI Agent làm việc trên BE.
+  - [`CODEX.md`](./CODEX.md): Chỉ dẫn dành riêng cho OpenAI Codex CLI.
+  - [`CLAUDE.md`](./CLAUDE.md): Chỉ dẫn dành riêng cho Claude Code.
+  - [`.cursorrules`](./.cursorrules): Cấu hình ngữ cảnh cho Cursor IDE.
+  - [`.github/copilot-instructions.md`](./.github/copilot-instructions.md): Hướng dẫn cho GitHub Copilot.
+  - [`.gemini/rules/be-agents-rules.md`](./.gemini/rules/be-agents-rules.md): Hướng dẫn cho Google Antigravity / Gemini.
 
 ## Trạng thái phát triển
 
