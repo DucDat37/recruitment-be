@@ -71,7 +71,7 @@ Server chạy tại `http://localhost:8080`. Swagger UI nằm tại `http://loca
 - Người dùng phải xác thực email trước khi đăng nhập.
 - Xác thực email bằng mã 6 chữ số gửi qua email, có hạn 15 phút và bị vô hiệu hóa sau 5 lần nhập sai. Link đặt lại mật khẩu có hạn 30 phút. Mỗi mã/token chỉ dùng được một lần.
 
-## API hiện có (giai đoạn 1)
+## API hiện có
 
 **Công khai**
 
@@ -85,6 +85,7 @@ Server chạy tại `http://localhost:8080`. Swagger UI nằm tại `http://loca
 | POST | `/api/auth/logout` | Đăng xuất (thu hồi refresh token) |
 | POST | `/api/auth/forgot-password` | Gửi email đặt lại mật khẩu |
 | POST | `/api/auth/reset-password` | Đặt lại mật khẩu bằng token |
+| GET | `/api/categories` | Cây danh mục nghề (tối đa 2 cấp) |
 
 **Yêu cầu đăng nhập**
 
@@ -99,6 +100,9 @@ Server chạy tại `http://localhost:8080`. Swagger UI nằm tại `http://loca
 | Method | Endpoint | Mô tả |
 |---|---|---|
 | PATCH | `/api/admin/users/{userId}/status` | Đổi trạng thái tài khoản (`ACTIVE`, `LOCKED`, `DISABLED`) |
+| POST | `/api/admin/categories` | Tạo danh mục nghề (slug tự sinh từ tên) |
+| PUT | `/api/admin/categories/{id}` | Sửa tên và danh mục cha |
+| DELETE | `/api/admin/categories/{id}` | Xóa danh mục không có danh mục con và chưa được tin tuyển dụng nào dùng |
 
 ## Định dạng phản hồi thành công
 
@@ -134,10 +138,10 @@ Mọi lỗi trả về JSON theo cấu trúc sau:
 
 ```
 src/main/java/com/example/recruitment/
-├── common/        Kiểu dùng chung (ApiResponse) và tiện ích (TokenUtils)
+├── common/        Kiểu dùng chung (ApiResponse) và tiện ích (TokenUtils, SlugUtils)
 ├── config/        Cấu hình Security, OpenAPI, AppProperties
 ├── controller/    REST controller
-├── dto/           Request và response (auth, admin)
+├── dto/           Request và response (auth, admin, category)
 ├── entity/        Entity JPA và enum
 ├── exception/     ApiException và xử lý lỗi toàn cục
 ├── repository/    Spring Data JPA repository
