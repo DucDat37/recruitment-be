@@ -116,6 +116,10 @@ public class AuthService {
 		RefreshToken current = refreshTokenRepository.findByTokenHash(TokenUtils.sha256Hex(rawRefreshToken))
 				.orElseThrow(this::invalidRefreshToken);
 
+		if (current.isRevoked() && current.getReplacedBy() == null) {
+			// Revoked by logout or password change, not by rotation: just reject
+			throw invalidRefreshToken();
+		}
 		if (current.isRevoked()) {
 			// Token đã được xoay vòng mà vẫn bị gửi lại: có khả năng bị đánh cắp, thu hồi toàn bộ phiên
 			refreshTokenRepository.revokeAllActiveByUserId(current.getUser().getId(), now);
