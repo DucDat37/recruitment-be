@@ -39,6 +39,7 @@ import java.util.UUID;
 public class AuthService {
 
 	private static final String INVALID_CREDENTIALS = "Email hoặc mật khẩu không đúng";
+	private static final int VERIFY_CODE_LENGTH = 6;
 
 	private final UserRepository userRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
@@ -59,17 +60,36 @@ public class AuthService {
 		}
 		User user = userRepository.save(
 				new User(email, passwordEncoder.encode(request.password()), request.role()));
-		String token = issueAccountToken(user, AccountTokenPurpose.EMAIL_VERIFY,
-				Duration.ofHours(properties.auth().verifyTtlHours()));
-		sendVerificationEmail(user, token);
+		sendVerificationEmail(user, issueVerificationCode(user));
 	}
 
-	@Transactional
-	public void verifyEmail(String rawToken) {
-		AccountToken token = findUsableToken(rawToken, AccountTokenPurpose.EMAIL_VERIFY);
+	/**
+	 * Verifies an email with a 6-digit code. The code space is only one million values, so it is
+	 * looked up by email and invalidated after {@code max-verify-attempts} wrong attempts to prevent brute force.
+	 */
+	@Transactional(noRollbackFor = ApiException.class)
+	public void verifyEmail(String email, String code) {
 		LocalDateTime now = LocalDateTime.now();
+		User user = userRepository.findByEmail(normalizeEmail(email))
+				.filter(u -> u.getEmailVerifiedAt() == null)
+				.orElseThrow(this::invalidVerificationCode);
+		AccountToken token = accountTokenRepository
+				.findFirstByUserIdAndPurposeAndUsedAtIsNullOrderByIdDesc(user.getId(), AccountTokenPurpose.EMAIL_VERIFY)
+				.filter(t -> t.getExpiresAt().isAfter(now))
+				.orElseThrow(this::invalidVerificationCode);
+
+		if (!passwordEncoder.matches(code, token.getTokenHash())) {
+			int attempts = token.getFailedAttempts() + 1;
+			token.setFailedAttempts(attempts);
+			if (attempts >= properties.auth().maxVerifyAttempts()) {
+				token.setUsedAt(now);
+				throw new ApiException(HttpStatus.BAD_REQUEST, "VERIFICATION_ATTEMPTS_EXCEEDED",
+						"Bạn đã nhập sai quá nhiều lần, vui lòng yêu cầu gửi lại mã mới");
+			}
+			throw invalidVerificationCode();
+		}
 		token.setUsedAt(now);
-		token.getUser().setEmailVerifiedAt(now);
+		user.setEmailVerifiedAt(now);
 	}
 
 	/** Luôn kết thúc êm, kể cả email không tồn tại, để không lộ thông tin tài khoản. */
@@ -77,11 +97,7 @@ public class AuthService {
 	public void resendVerification(String email) {
 		userRepository.findByEmail(normalizeEmail(email))
 				.filter(user -> user.getEmailVerifiedAt() == null)
-				.ifPresent(user -> {
-					String token = issueAccountToken(user, AccountTokenPurpose.EMAIL_VERIFY,
-							Duration.ofHours(properties.auth().verifyTtlHours()));
-					sendVerificationEmail(user, token);
-				});
+				.ifPresent(user -> sendVerificationEmail(user, issueVerificationCode(user)));
 	}
 
 	@Transactional(noRollbackFor = ApiException.class)
@@ -194,6 +210,25 @@ public class AuthService {
 		return raw;
 	}
 
+	/**
+	 * Invalidates previous codes and issues a new email verification code. The code is hashed with
+	 * BCrypt (per-hash salt) instead of SHA-256: a short code's SHA-256 is trivially reversible, and
+	 * two identical codes would violate the UNIQUE constraint on token_hash.
+	 */
+	private String issueVerificationCode(User user) {
+		LocalDateTime now = LocalDateTime.now();
+		accountTokenRepository.invalidateActiveByUserIdAndPurpose(user.getId(), AccountTokenPurpose.EMAIL_VERIFY, now);
+		String code = TokenUtils.generateNumericCode(VERIFY_CODE_LENGTH);
+		accountTokenRepository.save(new AccountToken(user, AccountTokenPurpose.EMAIL_VERIFY,
+				passwordEncoder.encode(code), now.plusMinutes(properties.auth().verifyTtlMinutes())));
+		return code;
+	}
+
+	private ApiException invalidVerificationCode() {
+		return new ApiException(HttpStatus.BAD_REQUEST, "INVALID_VERIFICATION_CODE",
+				"Mã xác thực không đúng hoặc đã hết hạn");
+	}
+
 	private void recordFailedLogin(User user, LocalDateTime now) {
 		int failures = user.getFailedLoginCount() + 1;
 		if (failures >= properties.auth().maxFailedLogins()) {
@@ -223,23 +258,22 @@ public class AuthService {
 				"Refresh token không hợp lệ hoặc đã hết hạn");
 	}
 
-	private void sendVerificationEmail(User user, String token) {
+	private void sendVerificationEmail(User user, String code) {
 		String body = """
 				Xin chào,
 
 				Cảm ơn bạn đã đăng ký tài khoản trên hệ thống tuyển dụng.
-				Vui lòng xác thực email bằng cách bấm vào link sau trong vòng %d giờ:
+				Mã xác thực email của bạn là:
 
 				%s
 
-				Nếu link không mở được, bạn có thể dùng token sau cho API xác thực email:
-				%s
+				Mã có hiệu lực trong %d phút. Không chia sẻ mã này với bất kỳ ai.
 
 				Nếu bạn không đăng ký tài khoản này, hãy bỏ qua email này.
 
 				Trân trọng,
 				Đội ngũ Recruitment
-				""".formatted(properties.auth().verifyTtlHours(), buildLink("/verify-email", token), token);
+				""".formatted(code, properties.auth().verifyTtlMinutes());
 		emailSender.send(user.getEmail(), "Xác thực địa chỉ email", body);
 	}
 

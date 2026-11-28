@@ -29,12 +29,12 @@ public class AuthController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public ApiResponse<Void> register(@Valid @RequestBody RegisterRequest request) {
 		authService.register(request);
-		return ApiResponse.success("Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.");
+		return ApiResponse.success("Đăng ký thành công. Vui lòng kiểm tra email để lấy mã xác thực tài khoản.");
 	}
 
 	@PostMapping("/verify-email")
 	public ApiResponse<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
-		authService.verifyEmail(request.token());
+		authService.verifyEmail(request.email(), request.code());
 		return ApiResponse.success("Xác thực email thành công.");
 	}
 
@@ -42,7 +42,7 @@ public class AuthController {
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public ApiResponse<Void> resendVerification(@Valid @RequestBody EmailRequest request) {
 		authService.resendVerification(request.email());
-		return ApiResponse.success("Nếu email tồn tại và chưa xác thực, chúng tôi đã gửi lại link xác thực.");
+		return ApiResponse.success("Nếu email tồn tại và chưa xác thực, chúng tôi đã gửi lại mã xác thực.");
 	}
 
 	@PostMapping("/login")

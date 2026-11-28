@@ -21,6 +21,12 @@ public final class TokenUtils {
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 	}
 
+	/** Generates a secure random numeric code of exactly {@code digits} digits (may start with 0), used for email verification. */
+	public static String generateNumericCode(int digits) {
+		int bound = (int) Math.pow(10, digits);
+		return String.format("%0" + digits + "d", RANDOM.nextInt(bound));
+	}
+
 	/** Băm SHA-256 để lưu vào CSDL, không lưu token gốc. */
 	public static String sha256Hex(String value) {
 		try {
