@@ -14,6 +14,7 @@ public record AppProperties(String frontendUrl, Cors cors, Jwt jwt, Auth auth) {
 	public record Jwt(String secret, long accessTtlMinutes, long refreshTtlDays) {
 	}
 
-	public record Auth(int maxFailedLogins, long lockMinutes, long verifyTtlHours, long resetTtlMinutes) {
+	public record Auth(int maxFailedLogins, long lockMinutes, long verifyTtlMinutes, int maxVerifyAttempts,
+					   long resetTtlMinutes) {
 	}
 }

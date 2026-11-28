@@ -51,6 +51,10 @@ public class AccountToken {
 	@Column(name = "used_at")
 	private LocalDateTime usedAt;
 
+	/** Number of wrong email verification code attempts; the code is invalidated once the limit is reached. */
+	@Column(name = "failed_attempts", nullable = false)
+	private int failedAttempts;
+
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;

@@ -14,6 +14,9 @@ public interface AccountTokenRepository extends JpaRepository<AccountToken, Long
 
 	Optional<AccountToken> findByTokenHashAndPurpose(String tokenHash, AccountTokenPurpose purpose);
 
+	/** Latest unused token of the user (issuing a new one invalidates older ones, so there is at most one). */
+	Optional<AccountToken> findFirstByUserIdAndPurposeAndUsedAtIsNullOrderByIdDesc(Long userId, AccountTokenPurpose purpose);
+
 	@Modifying
 	@Query("update AccountToken t set t.usedAt = :now where t.user.id = :userId and t.purpose = :purpose and t.usedAt is null")
 	int invalidateActiveByUserIdAndPurpose(@Param("userId") Long userId,

@@ -69,7 +69,7 @@ Server chạy tại `http://localhost:8080`. Swagger UI nằm tại `http://loca
 - Các vai trò: `CANDIDATE`, `RECRUITER`, `ADMIN`. Không thể đăng ký vai trò `ADMIN` qua API.
 - Đăng nhập sai 5 lần liên tiếp sẽ khóa tạm thời tài khoản 15 phút.
 - Người dùng phải xác thực email trước khi đăng nhập.
-- Token xác thực email có hạn 24 giờ, token đặt lại mật khẩu có hạn 30 phút. Mỗi token chỉ dùng được một lần.
+- Xác thực email bằng mã 6 chữ số gửi qua email, có hạn 15 phút và bị vô hiệu hóa sau 5 lần nhập sai. Link đặt lại mật khẩu có hạn 30 phút. Mỗi mã/token chỉ dùng được một lần.
 
 ## API hiện có (giai đoạn 1)
 
@@ -78,8 +78,8 @@ Server chạy tại `http://localhost:8080`. Swagger UI nằm tại `http://loca
 | Method | Endpoint | Mô tả |
 |---|---|---|
 | POST | `/api/auth/register` | Đăng ký tài khoản, gửi email xác thực |
-| POST | `/api/auth/verify-email` | Xác thực email bằng token |
-| POST | `/api/auth/resend-verification` | Gửi lại email xác thực |
+| POST | `/api/auth/verify-email` | Xác thực email bằng mã 6 chữ số |
+| POST | `/api/auth/resend-verification` | Gửi lại mã xác thực |
 | POST | `/api/auth/login` | Đăng nhập, trả về access token và refresh token |
 | POST | `/api/auth/refresh` | Làm mới cặp token |
 | POST | `/api/auth/logout` | Đăng xuất (thu hồi refresh token) |

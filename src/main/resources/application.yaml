@@ -47,7 +47,9 @@ app:
   auth:
     max-failed-logins: 5
     lock-minutes: 15
-    verify-ttl-hours: 24
+    # 6-digit email verification code: validity period and maximum wrong attempts per code
+    verify-ttl-minutes: 15
+    max-verify-attempts: 5
     reset-ttl-minutes: 30
 
 server:
